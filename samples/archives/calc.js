@@ -28,6 +28,7 @@ function calculate() {
         console.log('Performing addition of '+n1+' and '+n2+'.');
         return n1 + n2;
     }
+    lskdjf
     function performMultiplication(n1, n2) {
         console.log('Performing multiplication of '+n1+' and '+n2+'.');
         
