@@ -19,48 +19,48 @@ NOTES FOR CMPE202
 The current version of Aardwolf never worked for us and crashed often. We rolled it back to the Nov 2011 version
 and added in some features from future versions and some of our own. 
 Below are our additions:
-  BUGS:
-   -Remote server crashed if code to debug had nesting errors  
-		Solution: created a nesting check before uploading
-   -Remote Server crashed with no reason
-        Solution: created better asynchronous error reporting
+  *BUGS:
+   *Remote server crashed if code to debug had nesting errors  
+		**Solution: created a nesting check before uploading
+   *Remote Server crashed with no reason
+        **Solution: created better asynchronous error reporting
         
-  LACK OF VERBOSItY:
-   -system was hard to run even after reading the read me and gui also seemed to bug often
-   -config-local file seemed more trouble than it was worth
-        Solution: 1. added clearer instructions on runnign the app in default mode.
-                  2. Ensured the deault mode automatically chose an ip for you
-                  3. Added help menu to the GUI
-                  5. More vocal in console about events occuring
-                  7. Removed config-local to be needed as a default
-   User Interface Design:
-   -system was not intuitive and had too many places for input
-          Solution:
-               1. Console output that could be hidden but told you if it had new imput
-               2. Buttons and screens moved around for better usability.
-               3. Overall look improved and more intuitive
+  *LACK OF VERBOSItY:
+   *system was hard to run even after reading the read me and gui also seemed to bug often
+   *config-local file seemed more trouble than it was worth
+        **Solution: 1. added clearer instructions on runnign the app in default mode.
+                  ***2. Ensured the deault mode automatically chose an ip for you
+                  ***3. Added help menu to the GUI
+                  ***4. More vocal in console about events occuring
+                  ***5. Removed config-local to be needed as a default
+   *User Interface Design:
+   *system was not intuitive and had too many places for input
+          ** Solution:
+                  ***1. Console output that could be hidden but told you if it had new imput
+                  ***2. Buttons and screens moved around for better usability.
+                  ***3. Overall look improved and more intuitive
                
-   EDIT AND SAVE FILE:
-    -user had to shut down servers to edit and then reload files into GUI
-    -GUI was read-only so you could not act 
-         Solution: Asynchronous file copying
-              Seperate area that allows you to edit code
-              Edit and save buttons, allowing user to edit inside the gui and save file
-              Archive: archives the previous versions in case the user accidentally overwrites something
-                   Note: archives do not pop up in GUI
-              Prevents file loss: copies over previous file before replacing it so if server goes down you wont lose both                   
-              Checks nesting errors: to ensure File Server doesn't crash before uploading file
-              Reports whether the file save was a a success or a failure and why
+   *EDIT AND SAVE FILE:
+    *user had to shut down servers to edit and then reload files into GUI
+    *GUI was read-only so you could not act 
+         **Solution: 1. Asynchronous file copying
+                   ***2. Separate area that allows you to edit code
+                   ***3. Edit and save buttons, allowing user to edit inside the gui and save file
+                   ***4. Archive: archives the previous versions in case the user accidentally overwrites something
+                            ****Note: archives do not pop up in the GUI
+                   ***5. Prevents file loss: copies over previous file before replacing it so if server goes down you wont lose both                   
+                   ***6. Checks nesting errors: to ensure File Server doesn't crash before uploading file
+                   ***7. Reports whether the file save was a a success or a failure and why
    
 
 SET UP
 -----------------------------------------------------------------------------------------------
 Listed below are the modified startup instructions. 
 * Begin by installing node.js
-* Download the required libraries by running "npm link" in this directory
-* Start the server by running "node app.js"
+* Download the required libraries by running "npm link" or "sudo npm link" in this directory 
+* Start the server by running "node app.js" in this directory
 * After the server starts up, open the specified ip for AardwolfServer in your desktop browser. The debugger UI should appear.
-* Open  on your phone or browser and wait for the page to load. The line "Mobile device connected." should appear in the UI's output panel.
+* Open on your phone or browser and wait for the page to load. The line "Mobile device connected." should appear in the UI's output panel.
 * You're now debugging the "calculator" example script.
 * Click on the help button for further instructions
 
