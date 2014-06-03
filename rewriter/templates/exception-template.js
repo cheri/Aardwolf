@@ -1,5 +1,5 @@
 
-var __this = this;try {
+try {
   Aardwolf.pushStack("__FUNCTION__", "__FILE__", '__LINE__');
   var aardwolfEvalFunc = function(aardwolfEval) { return eval(aardwolfEval); };
   SPLIT

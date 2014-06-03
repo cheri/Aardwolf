@@ -12,23 +12,18 @@ var exceptionInterceptorParts = exceptionInterceptorTemplate.split('SPLIT');
 var exceptionInterceptorStart = exceptionInterceptorParts[0].trim();
 var exceptionInterceptorEnd = exceptionInterceptorParts[1].trim();
 
+function buildDebugStatement(file, line, isDebuggerStatement) {
+    return debugStatementTemplate
+                .replace('__FILE__', file)
+                .replace('__LINE__', line)
+                .replace('__DEBUGGER__', isDebuggerStatement ? 'true' : 'false');
+}
 
 function addDebugStatements(filePath, text) {
     var coffee = require('coffee-script');
+    
     var lines = text.split('\n');
     var out = [];
-    
-    var breakpoints = [];
-    
-    function buildDebugStatement(file, line, isDebuggerStatement) {
-        breakpoints.push(line);
-        
-        return debugStatementTemplate
-                    .replace('__FILE__', file)
-                    .replace('__LINE__', line)
-                    .replace('__DEBUGGER__', isDebuggerStatement ? 'true' : 'false');
-    }
-    
     
     lines.forEach(function(line, i) {
         var parts;
@@ -52,10 +47,9 @@ function addDebugStatements(filePath, text) {
         }
     });
 
-    return {
-        file: exceptionInterceptorStart + coffee.compile(out.join('\n')) + exceptionInterceptorEnd,
-        breakpoints: breakpoints
-    };
+    return exceptionInterceptorStart + 
+           coffee.compile(out.join('\n')) + 
+           exceptionInterceptorEnd;
 }
 
 
