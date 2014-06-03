@@ -26,6 +26,8 @@ $(function() {
     $('#btn-step-over').click(breakpointStepOver);
     $('#btn-step-in').click(breakpointStepIn);
     $('#btn-step-out').click(breakpointStepOut);
+    $('#save-file').click(saveFile);
+    $("#edit-new-file").click(getCode);    
     $('#file-switcher').change(switcherSwitchFile);
     
     $continueBtn = $('#btn-continue'); 
@@ -41,11 +43,12 @@ $(function() {
     listenToServer();
     
     showFile({ file: $('#file-switcher').val() });
+    writeToConsole("System is ready.  Load your server page and click run to begin.");
 });
 
 function initDebugger() {
     loadSourceFiles();
-    postToServer({ command: 'set-breakpoints', data: JSON.parse($('#breakpoints').val()) });
+    postToServer({ command: 'set-breakpoints', data: JSON.parse($('#breakpoints').val()) }, '/desktop/outgoing');
 }
 
 function loadSourceFiles() {
@@ -53,40 +56,44 @@ function loadSourceFiles() {
     files = {};
     
     $('#file-switcher option').remove();
-    addToFileSwitcher('', '<select file>');
-    
+//    addToFileSwitcher('', '<select file>');
+
     fileList && fileList.files.forEach(function(f) {
-        var fdata = getFromServer('/files/data/'+f);
-        files[f] = fdata.data;
-        addToFileSwitcher(f, f);
+        if(f.indexOf("archive")!=1) {
+            var fdata = getFromServer('/files/data/'+f);
+            files[f] = fdata.data;
+            addToFileSwitcher(f, f);
+        }
     });
 }
 
 function updateBreakpoints() {
-    postToServer({ command: 'set-breakpoints', data: JSON.parse($('#breakpoints').val()) });
+    postToServer({ command: 'set-breakpoints', data: JSON.parse($('#breakpoints').val()) }, '/desktop/outgoing');
     paintBreakpoints($('#file-switcher').val());
 }
 
+
 function setBreakOnNext() {
-    postToServer({ command: 'break-on-next', data: JSON.parse($('#breakpoints').val()) });
+    postToServer({ command: 'break-on-next', data: JSON.parse($('#breakpoints').val()) }, '/desktop/outgoing');
 }
 
 function evalCodeRemotely() {
-    postToServer({ command: 'eval', data: $('#eval').val() });
+    processOutput('Type any simple JavaScript you would like to run here.');
+    postToServer({ command: 'eval', data: $('#eval').val() }, '/desktop/outgoing');
 }
 
 function breakpointContinue() {
     removeLineHightlight();
     disableContinueAndStep();
     clearStackTrace();
-    postToServer({ command: 'breakpoint-continue' });
+    postToServer({ command: 'breakpoint-continue' }, '/desktop/outgoing');
 }
 
 function breakpointStepCommand(command) {
     removeLineHightlight();
     disableContinueAndStep();
     clearStackTrace();
-    postToServer({ command: command });
+    postToServer({ command: command }, '/desktop/outgoing');
 }
 
 function breakpointStep(command) {
@@ -113,9 +120,9 @@ function switcherSwitchFile() {
     showFile({ file: $('#file-switcher').val() });
 }
 
-function postToServer(payload) {
+function postToServer(payload, place) {
     var req = new XMLHttpRequest();
-    req.open('POST', '/desktop/outgoing', false);
+    req.open('POST', place, false);
     req.setRequestHeader('Content-Type', 'application/json');
     req.send(JSON.stringify(payload));
 }
@@ -229,7 +236,6 @@ function showFile(data) {
 function highlightLine(line, numLines) {
     var codeHeight = $code.height();
     var heightPerLine = codeHeight / numLines;
-    
     $code.css({
         'background-image': 'url("img/breakpoint-arrow.png"), url("img/breakpoint-bg.png")',
         'background-repeat': 'no-repeat, no-repeat, repeat-y',
@@ -308,21 +314,43 @@ function clearStackTrace() {
 function processOutput(data) {
     switch (data.command) {
         case 'mobile-connected':
-            writeToConsole('Mobile device connected.');
+            writeToConsole('Mobile device connected.');            
             initDebugger();
+            break;
+        case 'update-breakpoints-from-file':
+        	$('#breakpoints').val(JSON.stringify(data.breakpoints));
+        	updateBreakpoints();
+        	break;
+        case 'save-success':
+        	loadSourceFiles();
+        	writeToConsole('<b> File ' + data.file+' has been saved and loaded to Aardwolf GUI. Reload your server\'s page to upload it to your server.</b>');            
+        	
+        	$('#file-switcher').val(data.file);
+            break;
+        case 'save-failed':
+            writeToConsole('<b> File ' + data.file + ' did not save due to an error. Bug Report:'+ data.bug); 
             break;
         case 'print-message': 
             writeToConsole('<b>'+data.type + '</b>: ' + data.message);
             break;
         case 'print-eval-result':
-            writeToConsole('<b>EVAL</b> INPUT: ' + data.input + ' RESULT: ' + data.result);
+            if (data.input=="'Type any simple JavaScript you would like to run here.'"||data.input==""){
+                 writeToConsole('RESULT: Program has executed.');    
+            }
+            else{
+                writeToConsole('<b>EVAL</b> INPUT: ' + data.input + ' RESULT: ' + data.result);    
+            }
             break;
         case 'report-exception':
             writeToConsole('<b>EXCEPTION</b>: ' + data.message + ' at ' + data.file + ', line ' + data.line);
             break;
         case 'report-breakpoint':
+            writeToConsole('<b>BREAKPOINT</b>: '+ data.file + ', line ' + data.line);
             showBreakpoint(data);
             break;
+        default:
+            // check for bad code before stating unclear response
+            writeToConsole('Response unclear. Possible breakpoint, failed connection, or inadequate input received.');    
     }
 }
 
@@ -336,7 +364,13 @@ function safeJSONParse(str) {
 
 var lineNum = 0;
 function writeToConsole(msg) {
-    $('<div></div>').html((++lineNum) + ': ' + msg).appendTo($('#output'))[0].scrollIntoView();
+    if ($("#hide-show-output").data('state') == 'off'){
+        document.getElementById("output-warn").style.display = 'inline';
+    }
+    else{
+        document.getElementById("output-warn").style.display = 'none';
+    }
+    $('<div></div>').html((++lineNum) + ': ' + msg).appendTo($('#output'))[0];//.scrollIntoView();
 }
 
 
@@ -344,4 +378,33 @@ function fileExt(fileName) {
     return fileName.split('.').slice(-1)[0];
 }
 
+function fixContent(str){
+    str = str.replace(/<div><br>/g, '\n');
+    str = str.replace(/<div>/g, '\n');
 
+    str = str.replace(/<\/div>/g, '');
+    str = str.replace(/<br>/g, '\n');
+    str = str.replace(/&nbsp;/g,' ')
+
+    return str;
+}
+
+function saveFile(){
+    var textBox = document.getElementById('editcode');
+    var content;
+
+    if (textBox.outerHTML)   content = textBox.innerHTML;
+    else if (XMLSerializer) content = new XMLSerializer().serializeToString(textBox);   
+    content = fixContent(content);      
+    postToServer({ command: 'save-file', data: content, filename: $('#file-switcher').val()}, '/desktop/save');           
+}
+
+function getCode(){    
+    // if ($('#file-switcher').val() != ""){
+        var data = { file: $('#file-switcher').val() };         
+        jQuery('#editcode').text(files[data.file]);    
+    // }
+    // else{
+    //     writeToConsole("Please select a file to edit.");
+    // }
+}
