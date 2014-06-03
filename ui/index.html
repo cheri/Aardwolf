@@ -5,6 +5,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+        <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
         <script type="text/javascript" src="js/jstokenizer.js"></script>
         <script type="text/javascript" src="js/coffeetokenizer.js"></script>
         <script type="text/javascript" src="js/ui.js"></script>
@@ -16,50 +19,152 @@
     
     <body>
         <div id="top-toolbar">
-            <button id="btn-continue" class="button play green" disabled>continue</button>
-            <span id="controls-coffeescript">
-                <button id="btn-step" class="button next green" disabled>step</button>
-            </span>
-            <span id="controls-javascript">
-                Step: 
-                <button id="btn-step-over" class="button step-over green" disabled>over</button>
-                <button id="btn-step-in" class="button step-in green" disabled>in</button>
-                <button id="btn-step-out" class="button step-out green" disabled>out</button>
-            </span>
-            
-            File: 
-            
-            <select id="file-switcher">
-            </select>
+            <img id="logo" src="img/logo6.png" height="20"/>
+            <span id="select-file" style="vertical-align:middle; font-size:15px">File: <select id="file-switcher"></select></span>                        
+            <button id="edit-new-file" class="button small">Edit File</button>
+            <button id="save-file" class="button small">Save</button>
+            <span id="output-warn">New output in the console window.  Press "Hide/Show Output" to view.</span>
+            <button id="help" class="button small">Help</button>
+            <button id="hide-show-output" class="button small">Hide/Show Output</button>
         </div>
     
     
-        <div id="center-panels">
-            <div id="code-container">
-                <div id="code">&nbsp;</div>
-            </div>
-            
+        <div id="center-panels">                        
             <div id="sidebar" class="">
+                <h2>Controls</h2>
+                 <button id="btn-continue" class="button play blue" disabled>continue</button>
+                <span id="controls-coffeescript">
+                    <button id="btn-step" class="button next blue" disabled>step</button>
+                </span>
+                <span id="controls-javascript">
+                    <br>Step<br> 
+                    <button id="btn-step-over" class="button step-over blue" disabled>over</button>
+                    <button id="btn-step-in" class="button step-in blue" disabled>in</button>
+                    <button id="btn-step-out" class="button step-out blue" disabled>out</button>
+                </span>
                 <h2>Breakpoints</h2>
                 <textarea id="breakpoints"></textarea>
                 <button id="btn-update-breakpoints" class="button small">update breakpoints</button>
                 <button id="btn-breakon-next" class="button small">break on next</button>
             
                 <h2>Console</h2>
-                <textarea id="eval"></textarea>
-                <button id="btn-eval" class="button small">eval()</button>
+                <textarea id="eval" title="'Type any simple JavaScript you would like to run here.'"></textarea>                
+                <button id="btn-eval"><span class="egypt">Run</span><img src="img/scarab5.png"> </button><br><br><br>                
                 
-                <h2>Call stack</h2>
-                <pre id="stack">
-                </pre>
-            
             </div>
+            <div id="code-container">  
+                <div id="dialog" title="Getting Started">Welcome!  Here's how to get started with Scarab:<br><hr>
+                    <b>1)</b> Select a file to debug from the top menu (EXAMPLE: /calc.js).<br><hr>
+                    <b>2)</b> Load the corresponding HTML page for the file (EXAMPLE: http://localhost:8500/calc.html).  You should see "mobile device connected" appear in the output panel at the bottom.<br><hr>
+                    <b>3)</b> You can now control execution with the blue buttons in the sidebar.<br><hr>
+                    <b>4)</b> Add or remove breakpoints by specifying filename and line number at which to break.  If you don't want any breakpoints, write an empty array ("[]", without quotes).<br><hr>
+                    <b>5)</b> You can use the console area to request simple inputs (EXAMPLE: input a in the console area and press the "Run" button when debugging calc.js.  Assuming line 23 has executed and you have provided a value for "a" on the html page, the result will be the value of a).<br><hr>
+                    <b>6) For a visual example of Scarab in action, check out our video tutorial here: <a href="http://tinyurl.com/scarabDemo" style="color:blue">http://tinyurl.com/scarabDemo</a>.</b><hr>
+
+                </div>                             
+                <div id="code">&nbsp;</div>
+                <div id="editcode" contenteditable="true">Add new code to be debugged here.</div>
+            </div>
+
         </div>
         
-        <div id="output">
+        <div id="output-container">
+            <div id="column1"><div id="dragbar"></div><span style="font-weight: bold;font-size: 16px;">Call stack</span><pre id="stack"></pre></div>
+            <div id="output"><span style="font-weight: bold;font-size: 16px;">Output</span></div>
         </div>
         
         
-    </body>
+    </body>    
+    <script type="text/javascript">
+    jQuery(document).ready(function(){        
+        document.getElementById("editcode").style.display = 'none';
+        document.getElementById("save-file").style.display = 'none';
+        document.getElementById("output-warn").style.display = 'none';
+        
+        jQuery('#hide-show-output').live('click', function(event) {  
+             $(this).data('state', ($(this).data('state') == 'off') ? 'on' : 'off');      
+             jQuery('#output-container').toggle('show');
+             $("#center-panels").css({"padding-bottom":($(this).data('state') == "off") ? "0" : "200px"});
+        });
+
+        jQuery('#edit-new-file').live('click', function(event) {  
+             // if ($('#file-switcher').val() != ""){
+                 $(this).data('state', ($(this).data('state') == 'off') ? 'on' : 'off');      
+                 jQuery('#code').toggle('show');
+                 jQuery('#editcode').toggle('show');
+                 jQuery('#select-file').toggle('show');
+                 jQuery('#save-file').toggle('show');
+                 $( "#editcode" ).focus();
+                 $("#edit-new-file").html(($(this).data('state') == "off") ? "Select Existing File" : "Edit File");
+             // }         
+        });
+
+         // ghost bar
+        var i = 0;
+        var dragging = false;
+           $('#dragbar').mousedown(function(e){
+               e.preventDefault();
+               
+               dragging = true;
+               var main = $('#output');
+               var ghostbar = $('<div>',
+                                {id:'ghostbar',
+                                 css: {
+                                        height: main.outerHeight(),
+                                        top: main.offset().top,
+                                        left: main.offset().left
+                                       }
+                                }).appendTo('body');
+               
+                $(document).mousemove(function(e){
+                  ghostbar.css("left",e.pageX+2);
+               });
+            });
+
+           $(document).mouseup(function(e){
+               if (dragging) 
+               {
+                   $('#column1').css("width",e.pageX+2);
+                   $('#output').css("left",e.pageX+2);
+               $('#ghostbar').remove();
+               $(document).unbind('mousemove');
+               dragging = false;
+           }
+        });
+
+        //placeholder text        
+        var inputs = $('#eval');
+        
+        // Set title for #eval.
+        inputs.each(function(){
+            $(this).val($(this).attr('title')).addClass('unfocused');
+            $(this).css({"color":"#888"});
+        });
+        
+        // Textarea in focus
+        inputs.focus(function(){
+            var input = $(this);
+            if(input.val() == input.attr('title')){
+                $(this).removeClass('unfocused').val('');
+                $(this).css({"color":"#000"});
+            }
+        });
+        // Textarea not in focus   
+        inputs.blur(function(){
+            var input = $(this);
+            if(input.val() == ''){ // no text in textarea 
+                input.val(input.attr('title')).addClass('unfocused');
+                $(this).css({"color":"#888"});
+            }
+        });
+
+        //dialog 
+        $( "#dialog" ).dialog({ autoOpen: false, dialogClass: 'dialog' });
+        $( "#dialog" ).dialog( "option", "width", 450 );
+        $( "#help" ).click(function() {
+            $( "#dialog" ).dialog( "open" );
+        });
+    });
+    </script>
 </html>
 
