@@ -40,13 +40,27 @@ pre {
     margin: 0;
 }
 
+#logo{
+    font-size: 30px;
+    padding-right:30px;
+    border:none;
+    /*padding-top: 10px !important;*/
+    vertical-align: middle;
+    /*position: absolute;
+    left:50%;*/
+    /*top:50%;*/
+}
+
 #top-toolbar {
+    /*background: url(../img/parchment.jpg);  */
     position: absolute;
     height: 50px;
     width: 100%;
     z-index: 500;
+    /*padding-top: 10px !important;*/
+
     
-    padding: 5px 0 5px 10px;
+    padding: 15px 0 5px 10px;
     border-bottom: 1px solid #aaa;
     
     background-image: -webkit-linear-gradient(top, #F0F0F0, #ccc);
@@ -63,8 +77,8 @@ pre {
     height: 100%;
     
     padding-top: 50px;
-    padding-right: 350px;
-    padding-bottom: 250px;
+    padding-right: 0px;
+    padding-bottom: 200px;
     
     margin: 0;
     border: 0;
@@ -74,7 +88,8 @@ pre {
 }
 
 #code-container {
-    background: url(../img/code-bg.png);
+    background: url(../img/code-bg.png);    
+    /*background-position: 280px 0px;*/
     background-position: -8px 0px;
     background-repeat: repeat-y;
     height: 100%;
@@ -84,8 +99,21 @@ pre {
 #code {
     white-space: pre;
     font-family: "Courier New", monospace;
-    margin: 5px 0 50px 0;
+    /*margin: 5px 400px 50px 325px;*/
+    margin:5px 0 50px 0;
+    overflow: auto;
 }
+
+#editcode {
+    white-space: pre;
+    font-family: "Courier New", monospace;
+    /*margin: 5px 400px 50px 360px;*/
+    margin:5px 0 50px 60px;
+    width:65%;
+    height:90%;
+}
+#editcode:focus {outline:0;}
+a,button:focus{outline:0;}
 
 #code .comment {
     color: green;
@@ -121,24 +149,61 @@ pre {
 #sidebar {
     display: block;
     width: 350px;
-    padding: 5px;
+    padding: 13px;
     
-    position: absolute;
-    right: 0px;
+    position: absolute;    
+    right:0px;
     top: 50px;
-    bottom: 250px;
+    bottom: 0px; /*150*/
     
     overflow: hidden;
     border-left: 2px solid #bbb;
-    background: #f7f7f7;
+    background:#f7f7f7;;    
 }
 
-#output {
+#btn-eval{
+    -moz-border-radius: 35px !important;
+    border-radius: 35px !important;    
+    margin-left: 100px;    
+    background:#ddd;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#bbb));
+    background-image: -webkit-linear-gradient(top, #ddd, #bbb);
+    background-image: -moz-linear-gradient(top, #ddd, #bbb);
+    background-image: -ms-linear-gradient(top, #ddd, #bbb);
+    background-image: -o-linear-gradient(top, #ddd, #bbb);
+    background-image: linear-gradient(top, #ddd, #bbb);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#dddddd', EndColorStr='#bbbbbb');
+    border:1px solid #777;
+}
+#btn-eval:hover{
+    cursor: pointer;
+    background:#eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+    background-image: -webkit-linear-gradient(top, #eee, #ccc);
+    background-image: -moz-linear-gradient(top, #eee, #ccc);
+    background-image: -ms-linear-gradient(top, #eee, #ccc);
+    background-image: -o-linear-gradient(top, #eee, #ccc);
+    background-image: linear-gradient(top, #eee, #ccc);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#cccccc');
+}
+#btn-eval:focus {outline:0;}
+
+#btn-eval img{
+    vertical-align: middle;
+    height:30px;
+}
+.egypt{
+    font-size: 20px !important;
+    vertical-align: middle;
+    padding-right: 10px
+}
+
+#output-container {
     border-top: 2px solid #bbb;
     position: absolute;
     left: 0;
     bottom: 0;
-    height: 250px;
+    height: 200px;
     width: 100%;
     
     background: white;
@@ -159,13 +224,118 @@ textarea {
 }
 
 
-#output div {
+#output-container div {
     border-bottom: 1px solid #bbb;
     padding: 3px;
 }
 
+#column1 {
+   background-color: #ddd;
+   width:200px;
+   bottom:0;
+   height:200px;
+   float: left;
+   position: absolute;      
+   overflow-y: auto;
+   
+}
+#output {
+    background-color: #eee;
+    float: right;
+    position: absolute;
+    height:200px;
+    right: 0;
+    bottom:0;
+    left:200px;
+    overflow-y: auto;
+}
+#dragbar{
+   background-color:#ccc;
+   /*height:100%;*/
+   height:9999px;
+   float: right;
+   width: 1px;
+   cursor: col-resize;
+}
+#ghostbar{
+    width:3px;
+    background-color:#000;
+    opacity:0.5;
+    position:absolute;
+    cursor: col-resize;
+    z-index:999
+}
 
+#hide-show-output{
+    float:right;
+    margin-top: 0px;
+}
+#help{
+    float:right;
+    margin-top: 0px;
+}
 
+#output-warn{
+    background:pink;
+    border:1px solid red;
+    padding:5px;
+    font-size: 10px;
+}
 
+@media screen and (max-width: 600px) {
+    #hide-show-output {display:none;}
+    #help {display:none;}
+    
+}
 
+@media screen and (max-width: 300px) {
+    #select-file {display:none;}
+}
 
+@media screen and (max-width: 400px){
+    #save-file{display:none;}
+    #edit-new-file{display:none;}
+}
+
+#dialog{
+    position: relative;
+    z-index: 999;
+}
+
+.ui-dialog.dialog .ui-widget-header {
+    background: #81d1fe;
+    border: 0;
+    color: #000;
+    font-weight: bold;
+    font-size: 18px !important;
+}
+.ui-widget-content.dialog {
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#eee));
+    background-image: -webkit-linear-gradient(top, #fff, #fafafa);
+    background-image: -moz-linear-gradient(top, #fff, #eee);
+    background-image: -ms-linear-gradient(top, #fff, #eee);
+    background-image: -o-linear-gradient(top, #fff, #eee);
+    background-image: linear-gradient(top, #fff, #eee);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff', EndColorStr='#eeeeee');
+    border: 1px solid #81d1fe;
+    color: #222222;    
+}
+.ui-dialog.dialog .ui-dialog-titlebar {
+    padding: 0.1em .5em;
+    position: relative;
+    font-size: 1em;
+}
+.ui-dialog.dialog {
+    outline: 0 none;
+    padding: 0 !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-family: Arial, Helvetica, Tahoma, Verdana, sans-serif;
+}
+.ui-dialog.dialog hr{
+    height:2px; 
+    visibility:hidden; 
+    margin-bottom:-1px;
+}
