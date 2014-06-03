@@ -28,7 +28,7 @@ function serveStaticFile(res, filename) {
     res.end(fdata);
 }
 
-
+//Returns javascript or coffee files located in the directory.
 function getFilesList() {
     var files = [];
     var baseDir = path.normalize(config.fileServerBaseDir);
@@ -40,6 +40,34 @@ function getFilesList() {
             var stat = fs.statSync(fullPath);
             if (stat.isFile()) {
                 if (fullPath.substr(-3) == '.js' || fullPath.substr(-7) == '.coffee') {
+                    files.push(fullPath.substr(baseDir.length));
+                }
+            }
+            else {
+                walk(fullPath);
+            }
+        });
+    }
+    walk(baseDir);
+    
+    /* Unixify paths */
+    files = files.map(function(f) { return f.replace(/\\/g, '/'); });
+    
+    return files;
+}
+
+//returns the html files that the server can launch
+function getHTMLFiles(callback) {
+    var files = [];
+    var baseDir = path.normalize(config.fileServerBaseDir);
+    
+    function walk(dir) {
+        var fileList = fs.readdirSync(dir);
+        fileList.forEach(function(f) {
+            var fullPath = path.join(dir, f);
+            var stat = fs.statSync(fullPath);
+            if (stat.isFile()) {
+                if (fullPath.substr(-5) == '.html') {
                     files.push(fullPath.substr(baseDir.length));
                 }
             }
@@ -60,4 +88,5 @@ function getFilesList() {
 
 module.exports.serveStaticFile = serveStaticFile;
 module.exports.getFilesList = getFilesList;
+module.exports.getHTMLFiles= getHTMLFiles;
 
