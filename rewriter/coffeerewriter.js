@@ -52,8 +52,12 @@ function addDebugStatements(filePath, text) {
            exceptionInterceptorEnd;
 }
 
+//placeholder function for now
+function checkBugs(content, callback) {
+    callback();
+}
 
-module.exports = {
-    addDebugStatements: addDebugStatements
-};
+
+module.exports.addDebugStatements = addDebugStatements;
+module.exports.checkBugs= checkBugs;
 

@@ -1,8 +1,11 @@
+//this modules rewrites javascript files to insert aardwolf.js functions
+//It allows for the server and the file server to sync
 'use strict';
 
 var fs = require('fs');
 var path = require('path');
 var jstok = require('./jstokenizer.js');
+
 
 var debugStatementTemplate = 
     fs.readFileSync(path.join(__dirname, 'templates/debug-template.js')).toString().trim();
@@ -27,7 +30,8 @@ function buildDebugStatement(file, line, isDebuggerStatement) {
                 .replace('__DEBUGGER__', isDebuggerStatement ? 'true' : 'false');
 }
 
-function addDebugStatements(filePath, text) {
+//rewrites the code to insert debug statements and exception interceptors
+function addDebugStatements(filePath, text, callback) {
     var nestingDepth = [0];
     var out = [];
     var line = 1;
@@ -36,6 +40,7 @@ function addDebugStatements(filePath, text) {
     var functionEncountered = false;
     var wordAfterFunction = null;
     
+
     jstok.tokenize(text, function(token, type) {
         /* drop carriage returns... we don't need them. */
         if (token === '\r') {
@@ -100,7 +105,7 @@ function addDebugStatements(filePath, text) {
                 semicolonOrFunctionBoundryEncountered = true;
             }
         }
-        else if (token === '}') {
+        else if (token ==='}') {
             --nestingDepth[nestingDepth.length-1];
             
             /* we are about to exit a function body - insert the last part of the exception interception block */
@@ -128,14 +133,86 @@ function addDebugStatements(filePath, text) {
             out.push(token);
         }
     });
-
-    return buildExceptionInterceptorStart('<toplevel>', filePath, 0) + 
+    var content=buildExceptionInterceptorStart('<toplevel>', filePath, 0) + out.join('') + exceptionInterceptorEnd;
+	//fs.writeFile(path.join(__dirname, 'FinalFile.js'), content);
+    callback(false, buildExceptionInterceptorStart('<toplevel>', filePath, 0) + 
            out.join('') + 
-           exceptionInterceptorEnd;
+           exceptionInterceptorEnd);
+}
+
+//parses code to look for bugs. Currently just looks for nesting error
+function checkBugs(text, callback) {
+    var checkNesting= [];
+    var line = 1;
+    var error;
+    
+	jstok.tokenize(text, function(token, type) {
+    	switch(token) {
+        	case '{':
+            	checkNesting.push(['{', line]);
+            	break;
+        	case '(':
+            	checkNesting.push(['(', line]);
+            	break;
+        	case ')': 
+            	checkNesting= checkForCorrectNesting(checkNesting, line, ')', function(bug) {
+            		error= bug;
+            	});
+            	break;
+        	case '}':
+            	checkNesting= checkForCorrectNesting(checkNesting, line, '}', function(bug) {
+            		error= bug;
+            	});
+            	break;
+        	case '\n':
+                ++line;
+                break;
+            default:
+            	if (type == 'comment') {
+                	/* comments can span multiple lines so we need to adjust line count accordingly */
+                	var parts = token.split('\n');
+                	line += parts.length - 1;
+            	}
+            	break;
+        }
+    });
+    var depth= checkNesting.length;
+    //unmatched left bracket
+    if (depth>0) {
+    	depth--;
+    	callback( "Unmatched " + checkNesting[depth][0] + " at line" + checkNesting[depth][1]);
+    } else {
+    	callback(error);
+    }
+    
+    //checks if nesting is correct and returns an error if not
+    function checkForCorrectNesting(nestingArray, line, bracketType, callback) {
+    //Check to ensure semicolons match
+            var left= '(';
+            var right= ')';
+
+            if (bracketType==='}') {
+                left= '{';
+                right= '}';
+            }
+            if (bracketType===')') {
+                left= '(';
+                right= ')';
+            }
+            var depth= nestingArray.length;
+            if (depth==0) {
+                callback( "Unmatched " + right+ " on line " + line);
+            }
+            else if (nestingArray[depth-1][0]==left) {
+                    nestingArray.pop();
+            }
+            else {
+                callback( "Unmatched " + right + " on line " + line+"; Unmatched " + nestingArray[depth-1][1]+ " on line " + nestingArray[depth-1][1]);
+            }
+            return nestingArray;
+    }
 }
 
 
-module.exports = {
-    addDebugStatements: addDebugStatements
-};
-
+module.exports.addDebugStatements = addDebugStatements;
+module.exports.checkBugs= checkBugs;
