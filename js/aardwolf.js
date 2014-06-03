@@ -4,6 +4,8 @@
  * Do not enable JS strict mode for this file as it 
  * will disable some functionality this library depends on.
  */
+ // var fs = require('fs');
+
 window.Aardwolf = new (function() {
     var serverHost = '__SERVER_HOST__';
     var serverPort = '__SERVER_PORT__';
@@ -12,7 +14,7 @@ window.Aardwolf = new (function() {
     var shouldBreak = function() { return false; };
     var asyncXHR = null;
     var lastFile = '';
-    var lastLine = '';
+    var lastLine = '';    
     
     function listenToServer() {
         try {
@@ -24,7 +26,7 @@ window.Aardwolf = new (function() {
                 if (asyncXHR.readyState == 4) {
                     if (asyncXHR.responseText) {
                         var cmd = safeJSONParse(asyncXHR.responseText);
-                            
+                         
                         if (cmd && cmd.command == 'eval') {
                             doEval(function(aardwolfEval) { return eval(aardwolfEval); }, cmd);
                         }
@@ -44,6 +46,10 @@ window.Aardwolf = new (function() {
     }
     
     function dropCommandConnection() {
+        // var breakpoint_alert=document.getElementById('b');
+        // if (breakpoint_alert!=null){                
+        //     breakpoint_alert.innerHTML= "Awesomeness!";    
+        // }
         if (asyncXHR) {
             asyncXHR.abort();
         }
@@ -176,16 +182,31 @@ window.Aardwolf = new (function() {
            so we keep track of this manually for exception reporting purposes. */
         lastFile = file;
         lastLine = line;
-        
+        // var breakpoint_alert=document.getElementById('b');
+        // console.log(breakpoint_alert.html);
         while (true) {
+
             var isBreakpoint = (breakpoints[file] && breakpoints[file][line]) || /* explicit breakpoint? */
                                isDebuggerStatement ||                            /* debugger; statement? */
                                shouldBreak(stackDepth);                          /* step (in|over|out) or break-on-next? */
             
             if (!isBreakpoint) {
+                // document.getElementById('b', function(err, data) {
+                //     data.innerHTML= "";
+                // });
+                // breakpoint_alert=document.getElementById('b');
+                // if (breakpoint_alert!=null){                
+                //     breakpoint_alert.innerHTML= "";    
+                // }
+                
                 return;
             }
             
+            // breakpoint_alert=document.getElementById('b');
+            // if (breakpoint_alert!=null){                
+            //     breakpoint_alert.innerHTML= "Awesomeness!";    
+            // }
+
             dropCommandConnection();
             var cmd = sendToServer('/breakpoint', {
                 command: 'report-breakpoint',
