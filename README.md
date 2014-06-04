@@ -33,7 +33,7 @@ LACK OF PROPERLY COMMUNICATING ERRORS:
          * 1. added clearer instructions on runnign the app in default mode.
          * 2. Ensured the deault mode automatically chose an ip for you
          * 3. Added help menu to the GUI
-         * 4. More vocal in console about events occuring
+         * 4. More vocal in console about events occurring
          * 5. Removed config-local to be needed as a default
    * User Interface Design: system was not intuitive and had too many places for input
       * Solution:
@@ -42,16 +42,16 @@ LACK OF PROPERLY COMMUNICATING ERRORS:
          * 3. Overall look improved and more intuitive
                
 EDIT AND SAVE FILE:
-    * User had to shut down servers to edit and then reload files into GUI
-    * GUI was read-only so you could not act 
-       * Solution: 
-          * 1. Asynchronous file copying
-          * 2. Separate area that allows you to edit code
-          * 3. Edit and save buttons, allowing user to edit inside the gui and save file
-          * 4. Archive: archives the previous versions in case the user accidentally overwrites something (note: archives do not pop up in the GUI)
-          * 5. Prevents file loss: copies over previous file before replacing it so if server goes down you wont lose both                   
-          * 6. Checks nesting errors: to ensure File Server doesn't crash before uploading file
-          * 7. Reports whether the file save was a a success or a failure and why
+   * User had to shut down servers to edit and then reload files into GUI
+   * GUI was read-only so you could not act 
+      * Solution: 
+         * 1. Asynchronous file copying
+         * 2. Separate area that allows you to edit code
+         * 3. Edit and save buttons, allowing user to edit inside the gui and save file
+         * 4. Archive: archives the previous versions in case the user accidentally overwrites something (note: archives do not pop up in the GUI)
+         * 5. Prevents file loss: copies over previous file before replacing it so if server goes down you wont lose both
+         * 6. Checks nesting errors: to ensure File Server doesn't crash before uploading file
+         * 7. Reports whether the file save was a success or a failure and why
    
 
 SET UP
