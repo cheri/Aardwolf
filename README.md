@@ -25,7 +25,7 @@ Below are our additions:
    * Remote Server crashed with no reason
       * Solution: created better asynchronous error reporting
         
-  * LACK OF PROPERLY COMMUNICATING ERRORS:
+  LACK OF PROPERLY COMMUNICATING ERRORS:
    * System was hard to run even after following the instructions in the README and GUI also seemed to bug often
    * Config-local file seemed more trouble than it was worth
       * Solution: 
@@ -34,14 +34,13 @@ Below are our additions:
          * 3. Added help menu to the GUI
          * 4. More vocal in console about events occuring
          * 5. Removed config-local to be needed as a default
-   * User Interface Design:
-   * System was not intuitive and had too many places for input
-          * Solution:
-              * 1. Console output that could be hidden but told you if it had new imput
-              * 2. Buttons and screens moved around for better usability.
-              * 3. Overall look improved and more intuitive
+   * User Interface Design: system was not intuitive and had too many places for input
+      * Solution:
+         * 1. Console output that could be hidden but told you if it had new imput
+         * 2. Buttons and screens moved around for better usability.
+         * 3. Overall look improved and more intuitive
                
-   * EDIT AND SAVE FILE:
+   EDIT AND SAVE FILE:
     * User had to shut down servers to edit and then reload files into GUI
     * GUI was read-only so you could not act 
        * Solution: 
